@@ -1,0 +1,42 @@
+# ===========================================================================
+# 発達障害の情報を集める RSS フィード一覧
+# ===========================================================================
+# ここに「巡回したいブログ・メディア」の RSS URL を追加していきます。
+# fetch は enabled: true のものだけを取得します。
+#
+# RSS URL の見つけ方:
+#   - WordPress系サイト : <サイトのURL>/feed  または  /?feed=rss2
+#   - はてなブログ       : <ブログのURL>/rss
+#   - note（クリエイター）: https://note.com/<ユーザーID>/rss
+#   - Ameba ブログ       : https://rssblog.ameba.jp/<ID>/rss.html
+#   - それ以外           : ページのソースを表示して
+#                          <link type="application/rss+xml" href="..."> を探す
+#
+# 各項目:
+#   id            : 半角英数の識別子（重複不可）
+#   name          : 表示名
+#   rss           : RSS/Atom フィードの URL
+#   trust         : high / medium / low  … 信頼度メモ（サイト表示・採否判断に使用）
+#   category_hint : 主なテーマ（省略可。最終的な分類は AI が判定）
+#   enabled       : true で巡回対象になる
+# ===========================================================================
+
+sources:
+  - id: example-hatena
+    name: "（例）はてなブログの発達障害カテゴリ"
+    rss: "https://example.hatenablog.com/rss"
+    trust: medium
+    category_hint: "家庭での接し方・環境調整"
+    enabled: false
+
+  - id: example-note
+    name: "（例）note のクリエイター"
+    rss: "https://note.com/example/rss"
+    trust: medium
+    enabled: false
+
+  - id: example-wordpress
+    name: "（例）WordPress の個人ブログ"
+    rss: "https://example.com/feed"
+    trust: low
+    enabled: false
