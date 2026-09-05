@@ -1,11 +1,15 @@
-// ③ 取り込み結果を確認する（レビュー用の簡易ビュー）
+// ③ 記事の確認・承認（レビュー用ビュー）
 //
-//   node src/show.mjs             … 加工済み(enriched)の記事を一覧
+//   node src/show.mjs             … 加工済み(enriched)の記事＝レビュー待ち一覧
 //   node src/show.mjs new         … 未加工の記事
 //   node src/show.mjs error       … 加工に失敗した記事
 //   node src/show.mjs cautions    … 注意フラグ付きの記事だけ
+//   node src/show.mjs approved    … 承認済み
+//   node src/show.mjs rejected    … 却下済み
 //   node src/show.mjs stats       … 件数サマリ
 //   node src/show.mjs <id>        … 1件の詳細（要約・要点・本文冒頭）
+//   node src/show.mjs approve <id>
+//   node src/show.mjs reject <id>
 
 import { getDb } from './lib.mjs';
 
@@ -72,13 +76,25 @@ function list(where, label) {
     console.log();
   }
   console.log('詳細:  npm run show -- <id>');
+  console.log('承認:  npm run show -- approve <id>  /  却下:  npm run show -- reject <id>');
+}
+
+function setArticleStatus(id, status) {
+  const a = db.prepare('SELECT * FROM articles WHERE id = ?').get(id);
+  if (!a) return console.log(`id=${id} は見つかりません。`);
+  db.prepare('UPDATE articles SET status = ? WHERE id = ?').run(status, id);
+  console.log(`${status === 'approved' ? '✓ 承認' : '✗ 却下'}: #${id} ${a.title}`);
 }
 
 if (arg === 'stats') stats();
+else if (arg === 'approve') setArticleStatus(parseInt(process.argv[3], 10), 'approved');
+else if (arg === 'reject') setArticleStatus(parseInt(process.argv[3], 10), 'rejected');
 else if (/^\d+$/.test(arg)) detail(parseInt(arg, 10));
 else if (arg === 'new') list("WHERE a.status = 'new'", '未加工');
 else if (arg === 'error') list("WHERE a.status = 'error'", '加工失敗');
 else if (arg === 'cautions') list('WHERE e.caution_flag = 1', '注意フラグ付き');
+else if (arg === 'approved') list("WHERE a.status = 'approved'", '承認済み');
+else if (arg === 'rejected') list("WHERE a.status = 'rejected'", '却下済み');
 else list("WHERE a.status = 'enriched'", '加工済み（レビュー待ち）');
 
 db.close();

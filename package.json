@@ -5,6 +5,8 @@
   "type": "module",
   "description": "発達障害の子育て情報をネットから集めて整理する収集パイプライン",
   "scripts": {
+    "discover": "node --no-warnings src/discover.mjs",
+    "sources": "node --no-warnings src/sources.mjs",
     "fetch": "node --no-warnings src/fetch.mjs",
     "enrich": "node --no-warnings src/enrich.mjs",
     "show": "node --no-warnings src/show.mjs"

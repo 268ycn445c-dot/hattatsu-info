@@ -1,13 +1,15 @@
-// ① RSS を巡回して新着記事の本文を取得し、DB に保存する
+// ① 承認済みソース（sources テーブル）の RSS を巡回し、新着記事の本文を取得して DB に保存する
 //
-//   node src/fetch.mjs                 … enabled な全ソースを巡回
-//   node src/fetch.mjs --source <id>   … 特定ソースだけ
+//   node src/fetch.mjs                 … 承認済みの全ソースを巡回
+//   node src/fetch.mjs --source <slug> … 特定ソースだけ
 //   node src/fetch.mjs --limit 5       … 1ソースあたりの取得上限（既定 15）
-//   node src/fetch.mjs --all           … enabled=false も含めて巡回
+//
+// ソースは  npm run discover  で見つけて  npm run sources -- approve <id>  で承認する。
+// config/sources.yaml に enabled: true で手動登録したものも自動的に承認済み扱いになる。
 
 import Parser from 'rss-parser';
 import { extract } from '@extractus/article-extractor';
-import { getDb, loadSources, sha1, htmlToText, nowIso, sleep } from './lib.mjs';
+import { getDb, syncYamlSources, sha1, htmlToText, nowIso, sleep } from './lib.mjs';
 
 const args = process.argv.slice(2);
 const getOpt = (name, def) => {
@@ -16,10 +18,10 @@ const getOpt = (name, def) => {
 };
 const onlySource = getOpt('--source', null);
 const perSourceLimit = parseInt(getOpt('--limit', '15'), 10);
-const includeDisabled = args.includes('--all');
 
 const parser = new Parser({ timeout: 20000 });
 const db = getDb();
+syncYamlSources(db);
 
 const insert = db.prepare(`
   INSERT INTO articles
@@ -31,12 +33,13 @@ const insert = db.prepare(`
 const existsUrl = db.prepare('SELECT 1 FROM articles WHERE url = ?');
 const existsHash = db.prepare('SELECT 1 FROM articles WHERE content_hash = ?');
 
-let sources = loadSources();
-if (!includeDisabled) sources = sources.filter((s) => s.enabled);
-if (onlySource) sources = sources.filter((s) => s.id === onlySource);
+let sources = db.prepare("SELECT * FROM sources WHERE status = 'approved'").all();
+if (onlySource) sources = sources.filter((s) => s.slug === onlySource);
+sources = sources.map((s) => ({ id: s.slug, name: s.name, rss: s.rss, trust: s.trust }));
 
 if (sources.length === 0) {
-  console.log('巡回対象のソースがありません。config/sources.yaml で enabled: true にしてください。');
+  console.log('巡回対象の承認済みソースがありません。');
+  console.log('  npm run discover  で候補を探すか、config/sources.yaml に手動登録してください。');
   process.exit(0);
 }
 
