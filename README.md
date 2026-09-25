@@ -1,134 +1,87 @@
 # hattatsu-info
 
-発達障害（ASD・ADHD・LD など）の子育て情報を、ネット上のブログ・メディアから
-自動で集めて整理するための収集パイプライン。
-将来的に「悩む保護者向けの情報サイト」を生成することを目的にしている。
+発達障害（ASD・ADHD・LD など）の子育てについて、自分の言葉で書いて発信するブログ。
+GitHub Pages で公開する。
 
-現時点で動くのは **①ブログピックアップ → ②確認 → ③記事取得 → ④加工 → ⑤確認** まで。
-（静的サイト生成・公開は次のステップ）
+（他ブログを自動収集して整理する仕組みも同じリポジトリ内に作ってあるが、今は保留中。
+詳細は末尾の「収集パイプライン（保留中）」を参照）
 
-## 全体像
-
-```
-   ① npm run discover   Claude の Web検索でブログ・メディア候補を探す（RSS自動検出つき）
-        │
-   ② npm run sources    候補を確認して 承認/却下（承認したものだけ次に進む）
-        │
-   ③ npm run fetch      承認済みソースの RSS を巡回 → 本文抽出 → data/articles.db に保存
-        │
-   ④ npm run enrich     Claude で 要約・要点・タグ・カテゴリ・注意フラグ を付与
-        │
-   ⑤ npm run show       記事を確認して 承認/却下（人間のレビュー）
-        │
-   （今後）承認済み記事から静的サイト生成 → GitHub Pages で公開
-```
-
-`config/sources.yaml` に手動で RSS を書くこともできる（`enabled: true` で自動承認扱い）。
-①②を使わず、いきなり③から始めても良い。
-
-## セットアップ
+## 書き方
 
 ```bash
-cd hattatsu-info
-npm install
-
-# Claude API キー（①④で使用）
-setx ANTHROPIC_API_KEY "sk-ant-..."   # PowerShell。設定後にターミナルを開き直す
+npm install                                  # 初回だけ
+npm run new-post -- "記事のタイトル"           # posts/ にひな形を作成
 ```
 
-Node.js 22 以降が必要（`node:sqlite` を使用）。
+`posts/` にできたファイルを編集する。先頭のフロントマターはこんな感じ:
 
-## 使い方
+```yaml
+---
+title: "記事のタイトル"
+date: 2026-09-25
+tags: ["体験談", "学校"]
+summary: "一覧ページに出す一言紹介。省略可。"
+draft: true          # 公開したら false にする
+---
 
-### 1. ブログピックアップ（自動）
+ここから本文を Markdown で書く。
+```
+
+Markdown の書き方（最低限）:
+
+```
+# 大見出し
+## 中見出し
+
+普通の段落。
+
+- 箇条書き
+- 箇条書き
+
+**太字**
+```
+
+## 公開する
 
 ```bash
-npm run discover                          # 候補を約10件探す
-npm run discover -- --count 15
-npm run discover -- --query "ADHD 中学生 反抗期"   # テーマを絞る
+npm run build     # posts/ から docs/ に静的サイトを生成（draft: true の記事は除外）
 ```
 
-Claude の Web検索で日本語のブログ・note・はてなブログ等を探し、各候補について
-RSS フィードを自動検出（HTML の `<link rel="alternate">` → `/feed` `/rss` 等の定番パターンの順に試行）して
-`候補(candidate)` として登録する。既に登録済みのサイトは除外指示するので重複しにくい。
-怪しい民間療法サイト等は「除外推奨」として弾かれる。
+生成された `docs/` を git commit → push すると GitHub Pages に反映される
+（GitHub 側の設定と初回セットアップは下記）。
 
-手動で候補を足したいときは:
+## 初回セットアップ（GitHub Pages）
 
-```bash
-npm run sources -- add "https://example.com" --name "サイト名"
-```
+1. github.com で新しい空のリポジトリを作成（Add a README にはチェックを入れない）
+2. このフォルダで:
+   ```bash
+   git remote add origin https://github.com/<ユーザー名>/<リポジトリ名>.git
+   git push -u origin main
+   ```
+3. リポジトリの **Settings → Pages** を開き、
+   **Source: Deploy from a branch** → **Branch: main / docs** を選んで Save
+4. 数分後に `https://<ユーザー名>.github.io/<リポジトリ名>/` で公開される
+5. `site/config.mjs` の `url` をこの URL に更新して `npm run build` → commit → push
 
-### 2. 確認（ブログ）
+以降は「記事を書く → `npm run build` → commit → push」の繰り返し。
 
-```bash
-npm run sources                           # 候補一覧（レビュー待ち）
-npm run sources -- approve 3              # 承認 → 次の fetch から巡回対象に
-npm run sources -- approve 3 --trust high # 信頼度メモも設定
-npm run sources -- reject 3
-npm run sources -- setrss 3 "https://..." # RSSが自動検出できなかった候補に手動設定してから承認
-npm run sources -- approved               # 承認済み一覧
-npm run sources -- rejected               # 却下済み一覧
-```
+## デザイン・構成
 
-### 3. 記事取得
+- `posts/*.md` … 記事の元原稿（Markdown）
+- `site/config.mjs` … サイトタイトル・説明文
+- `site/style.css` … 見た目
+- `site/build.mjs` … `posts/` → `docs/` の変換
+- `docs/` … 生成結果。GitHub Pages はここを配信する（**手で編集しない**。必ず build で再生成）
 
-```bash
-npm run fetch                      # 承認済みの全ソースを巡回
-npm run fetch -- --source foo      # 特定ソース（slug）だけ
-npm run fetch -- --limit 5         # 1ソースあたりの取得件数（既定15）
-```
+---
 
-- 本文が 200 字未満の記事、既出 URL、本文がほぼ同一の記事は自動スキップ
-- 相手サイトへの負荷を考え、記事ごとに約1.2秒待機する
+## 収集パイプライン（保留中）
 
-### 4. 加工（要約・分類）
+以前、他のブログから発達障害の情報を自動収集して要約・分類する仕組み
+（`npm run discover` / `sources` / `fetch` / `enrich` / `show`）を作った。
+コードは残しているが、今は自分で記事を書くことに専念するため使っていない。
+将来、参考リンク欄などで再利用するかもしれない。
 
-```bash
-npm run enrich                     # 未処理を最大20件
-npm run enrich -- --limit 50
-npm run enrich -- --retry          # 失敗した記事を再試行
-```
-
-モデルは既定で `claude-opus-5`。大量に回してコストを抑えたいときは:
-
-```bash
-setx HATTATSU_MODEL "claude-sonnet-5"
-```
-
-各記事について次を生成する:
-要約 / 要点 / タグ / カテゴリ / 対象年齢 / 読者 / **注意フラグ**（根拠の乏しい主張・
-断定的な治療効果の宣伝・エビデンスのない民間療法など）/ 有用性スコア / 信頼性所見。
-
-### 5. 確認（記事）
-
-```bash
-npm run show                       # 加工済み（レビュー待ち）一覧
-npm run show -- new                # 未加工
-npm run show -- cautions           # 注意フラグ付きだけ
-npm run show -- <id>               # 詳細（要約・要点・本文冒頭）
-npm run show -- approve <id>       # 承認 → 将来のサイト生成対象に
-npm run show -- reject <id>
-npm run show -- approved           # 承認済み一覧
-npm run show -- stats              # 件数サマリ
-```
-
-## データと著作権の扱い
-
-- `data/articles.db`（SQLite）はローカルのみ。`.gitignore` 済みでコミットしない。
-- 抽出した**本文全文はローカル処理のためだけ**に保存する。
-- 公開サイトに載せるのは「要約・短い引用・元記事へのリンク・出典表記」に限る想定。
-
-## データベース構造
-
-- `sources` … ブログ・メディア候補と承認状態（`candidate/approved/rejected`、`discovery: auto/manual`）
-- `articles` … 取得した記事（本文・出典・状態 `new/enriched/approved/rejected/error`）
-- `enrichment` … Claude が付けたメタデータ（`article_id` で 1:1）
-
-## 今後の予定
-
-- [ ] レビューUI（承認/却下/修正を Web 画面で。今は CLI）
-- [ ] 承認済み記事からの静的サイト生成（記事フィード＋テーマ別まとめ）
-- [ ] テーマ解説の自動生成（承認済み記事を根拠に概説を執筆）
-- [ ] GitHub Pages への公開
-- [ ] RSS の無いサイト、Instagram 等への対応
+- `config/sources.yaml`, `src/*.mjs` … 収集パイプライン本体
+- 必要になったら `ANTHROPIC_API_KEY` を設定して `npm run discover` から再開できる
+- データと著作権の扱い、DB構造などの詳細は git 履歴の旧 README、または `src/` 内のコメント参照

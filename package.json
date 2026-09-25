@@ -3,8 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "発達障害の子育て情報をネットから集めて整理する収集パイプライン",
+  "description": "発達障害の子育て情報サイト（自分で執筆・GitHub Pagesで公開）",
   "scripts": {
+    "build": "node --no-warnings site/build.mjs",
+    "new-post": "node --no-warnings site/new-post.mjs",
     "discover": "node --no-warnings src/discover.mjs",
     "sources": "node --no-warnings src/sources.mjs",
     "fetch": "node --no-warnings src/fetch.mjs",
@@ -14,6 +16,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.68.0",
     "@extractus/article-extractor": "^8.0.16",
+    "marked": "^15.0.0",
     "rss-parser": "^3.13.0",
     "yaml": "^2.6.1"
   }
