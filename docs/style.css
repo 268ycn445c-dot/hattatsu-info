@@ -1,24 +1,49 @@
 :root {
-  --bg: #fbf7f2;
+  --bg: #fbf7f1;
   --surface: #ffffff;
   --text: #33302c;
-  --text-muted: #756e64;
-  --accent: #d97757;
-  --accent-soft: #fdece4;
-  --border: #ece4da;
-  --max-width: 42rem;
+  --text-muted: #746c62;
+  --accent: #c8643f;
+  --accent-ink: #a64e2e;
+  --accent-soft: #fbe9df;
+  --green: #5f7a5b;
+  --green-soft: #e8eee4;
+  --border: #ece3d7;
+  --shadow: 0 1px 2px rgba(51, 48, 44, 0.04), 0 6px 20px rgba(51, 48, 44, 0.05);
+  --max-width: 44rem;
+  color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #211f1c;
-    --surface: #2a2723;
+  :root:not([data-theme="light"]) {
+    --bg: #1f1d1a;
+    --surface: #282521;
     --text: #f0ebe3;
-    --text-muted: #b3aa9d;
-    --accent: #e89676;
-    --accent-soft: #3a2e28;
-    --border: #3c372f;
+    --text-muted: #b5ab9e;
+    --accent: #e8916f;
+    --accent-ink: #f0a98c;
+    --accent-soft: #3a2c25;
+    --green: #93b48a;
+    --green-soft: #2d3629;
+    --border: #3b362f;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.25);
+    color-scheme: dark;
   }
+}
+
+:root[data-theme="dark"] {
+  --bg: #1f1d1a;
+  --surface: #282521;
+  --text: #f0ebe3;
+  --text-muted: #b5ab9e;
+  --accent: #e8916f;
+  --accent-ink: #f0a98c;
+  --accent-soft: #3a2c25;
+  --green: #93b48a;
+  --green-soft: #2d3629;
+  --border: #3b362f;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.25);
+  color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
@@ -27,112 +52,305 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font-family: "Hiragino Sans", "Yu Gothic UI", "Noto Sans JP", -apple-system, BlinkMacSystemFont, sans-serif;
-  line-height: 1.85;
+  font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic UI", -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.9;
   -webkit-font-smoothing: antialiased;
+  overflow-wrap: anywhere;
 }
+
+h1, h2, h3, .site-title, .section-title {
+  font-family: "Zen Maru Gothic", "Noto Sans JP", sans-serif;
+  text-wrap: balance;
+}
+
+a { color: var(--accent-ink); }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
 
 main {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 1.5rem 1.25rem 4rem;
+  padding: 1rem 1rem 4rem;
 }
 
+.preview-banner {
+  background: var(--green);
+  color: var(--surface);
+  text-align: center;
+  font-size: 0.8rem;
+  padding: 0.35rem 1rem;
+}
+
+/* --- ヘッダー --- */
+
 .site-header {
-  max-width: var(--max-width);
-  margin: 0 auto;
-  padding: 2.5rem 1.25rem 1.5rem;
+  background: var(--surface);
   border-bottom: 1px solid var(--border);
 }
 
+.site-header-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0.9rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.25rem;
+}
+
 .site-title {
-  display: inline-block;
-  font-size: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 1.15rem;
   font-weight: 700;
   color: var(--text);
   text-decoration: none;
 }
+.site-mark { font-size: 1.2rem; }
 
-.site-desc {
-  margin: 0.5rem 0 0;
+.site-nav { display: flex; flex-wrap: wrap; gap: 0.25rem; }
+.site-nav a {
   color: var(--text-muted);
-  font-size: 0.95rem;
+  text-decoration: none;
+  font-size: 0.88rem;
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+}
+.site-nav a:hover { color: var(--text); background: var(--bg); }
+.site-nav a[aria-current="page"] { color: var(--accent-ink); background: var(--accent-soft); font-weight: 500; }
+
+/* --- トップ --- */
+
+.hero { padding: 2.75rem 0 2rem; }
+.hero-eyebrow {
+  margin: 0 0 0.4rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--green);
+}
+.hero h1 {
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.7rem, 6vw, 2.3rem);
+  line-height: 1.35;
+}
+.hero-lede {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 1rem;
+  max-width: 34rem;
+}
+.hero-more { margin: 1rem 0 0; font-size: 0.92rem; }
+.hero-more a { text-decoration: none; font-weight: 500; }
+.hero-more a:hover { text-decoration: underline; }
+
+.section-title {
+  font-size: 1.05rem;
+  margin: 2.25rem 0 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.section-title::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
 }
 
-.post-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1.75rem;
-  margin-top: 1.5rem;
-}
+.tag-cloud .tags { gap: 0.5rem; }
+
+/* --- 記事カード --- */
+
+.post-list { display: flex; flex-direction: column; gap: 0.9rem; }
 
 .post-card {
-  padding-bottom: 1.75rem;
-  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  transition: border-color 0.15s ease, transform 0.15s ease;
 }
-.post-card:last-child { border-bottom: none; }
+.post-card:hover { border-color: var(--accent); transform: translateY(-1px); }
 
-.post-card h2 { margin: 0 0 0.4rem; font-size: 1.25rem; }
-.post-card h2 a { color: var(--text); text-decoration: none; }
-.post-card h2 a:hover { color: var(--accent); }
+.post-card-link {
+  display: block;
+  padding: 1.15rem 1.25rem 0.4rem;
+  color: inherit;
+  text-decoration: none;
+}
+.post-card-link:last-child { padding-bottom: 1.15rem; }
+
+.post-card h2 {
+  margin: 0 0 0.35rem;
+  font-size: 1.18rem;
+  line-height: 1.5;
+}
+.post-card-link:hover h2 { color: var(--accent-ink); }
+
+.post-card .tags { padding: 0.35rem 1.25rem 1.1rem; }
 
 .meta {
-  margin: 0 0 0.6rem;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-}
-
-.tag {
-  display: inline-block;
-  background: var(--accent-soft);
-  color: var(--accent);
-  border-radius: 999px;
-  padding: 0.1rem 0.65rem;
+  margin: 0 0 0.3rem;
   font-size: 0.8rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .summary {
   margin: 0;
   color: var(--text-muted);
+  font-size: 0.92rem;
+  line-height: 1.8;
 }
 
-.post h1 {
-  font-size: 1.75rem;
-  margin-bottom: 0.3rem;
-  line-height: 1.4;
+.draft-mark {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--green);
+  border: 1px solid var(--green);
+  border-radius: 999px;
+  padding: 0 0.5rem;
 }
 
-.post-body { margin-top: 1.75rem; }
-.post-body h2 { font-size: 1.3rem; margin-top: 2.25rem; }
-.post-body h3 { font-size: 1.1rem; margin-top: 1.75rem; }
-.post-body p { margin: 1rem 0; }
-.post-body img { max-width: 100%; border-radius: 8px; }
-.post-body a { color: var(--accent); }
-.post-body blockquote {
-  margin: 1.25rem 0;
-  padding: 0.25rem 1rem;
-  border-left: 3px solid var(--accent);
-  color: var(--text-muted);
+/* --- タグ --- */
+
+.tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0; }
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   background: var(--accent-soft);
-  border-radius: 0 6px 6px 0;
+  color: var(--accent-ink);
+  border-radius: 999px;
+  padding: 0.1rem 0.75rem;
+  font-size: 0.8rem;
+  text-decoration: none;
+  line-height: 1.8;
 }
+.tag:hover { filter: brightness(0.96); text-decoration: underline; }
+
+.tag-count {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.tags-large .tag { font-size: 0.95rem; padding: 0.3rem 1rem; }
+
+/* --- 一覧ページの見出し --- */
+
+.page-head { padding: 2.25rem 0 1.25rem; }
+.page-head h1 { margin: 0; font-size: 1.7rem; line-height: 1.4; }
+.page-eyebrow { margin: 0 0 0.25rem; font-size: 0.85rem; }
+.page-eyebrow a { text-decoration: none; }
+.page-lede { margin: 0.4rem 0 0; color: var(--text-muted); font-size: 0.92rem; }
+
+.empty {
+  color: var(--text-muted);
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+/* --- 記事ページ --- */
+
+.post {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  padding: 1.75rem 1.25rem 2rem;
+  margin-top: 1.5rem;
+}
+@media (min-width: 40rem) {
+  .post { padding: 2.5rem 2.75rem 2.75rem; }
+}
+
+.post-head { padding-bottom: 1.25rem; border-bottom: 1px solid var(--border); }
+.post-head h1 {
+  font-size: clamp(1.45rem, 5vw, 1.85rem);
+  margin: 0.2rem 0 0.75rem;
+  line-height: 1.45;
+}
+
+.post-body { margin-top: 1.5rem; font-size: 1.02rem; }
+.post-body > :first-child { margin-top: 0; }
+.post-body h2 {
+  font-size: 1.3rem;
+  margin: 2.5rem 0 0.75rem;
+  padding-left: 0.75rem;
+  border-left: 4px solid var(--accent);
+  line-height: 1.5;
+}
+.post-body h3 { font-size: 1.1rem; margin: 2rem 0 0.5rem; }
+.post-body p { margin: 1.1rem 0; }
+.post-body img { max-width: 100%; height: auto; border-radius: 12px; }
+.post-body blockquote {
+  margin: 1.5rem 0;
+  padding: 0.5rem 1.1rem;
+  border-left: 3px solid var(--green);
+  background: var(--green-soft);
+  border-radius: 0 10px 10px 0;
+}
+.post-body blockquote p { margin: 0.5rem 0; }
 .post-body ul, .post-body ol { padding-left: 1.4rem; }
+.post-body li { margin: 0.3rem 0; }
+.post-body li::marker { color: var(--accent); }
+.post-body hr { border: none; border-top: 1px dashed var(--border); margin: 2rem 0; }
 .post-body code {
   background: var(--accent-soft);
   padding: 0.1rem 0.35rem;
   border-radius: 4px;
   font-size: 0.9em;
 }
+.post-body table { border-collapse: collapse; width: 100%; font-size: 0.92rem; display: block; overflow-x: auto; }
+.post-body th, .post-body td { border: 1px solid var(--border); padding: 0.4rem 0.7rem; text-align: left; }
+.post-body th { background: var(--bg); }
 
-.back { margin-top: 2.5rem; }
-.back a { color: var(--accent); text-decoration: none; }
+.pager {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+.pager a {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 0.8rem 1rem;
+  text-decoration: none;
+  color: var(--text);
+  min-width: 0;
+}
+.pager a:hover { border-color: var(--accent); }
+.pager-next { text-align: right; }
+.pager-label { font-size: 0.75rem; color: var(--text-muted); }
+.pager-title { font-size: 0.9rem; font-weight: 500; line-height: 1.5; }
+
+.back { margin-top: 1.75rem; text-align: center; font-size: 0.92rem; }
+.back a { text-decoration: none; }
 .back a:hover { text-decoration: underline; }
 
+/* --- フッター --- */
+
 .site-footer {
-  max-width: var(--max-width);
-  margin: 0 auto;
-  padding: 2rem 1.25rem 3rem;
-  color: var(--text-muted);
-  font-size: 0.85rem;
   border-top: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  text-align: center;
+  padding: 2rem 1rem 2.5rem;
 }
+.site-footer p { margin: 0.2rem 0; }
+.footer-title { font-family: "Zen Maru Gothic", sans-serif; font-weight: 700; color: var(--text); }

@@ -11,7 +11,9 @@
     "sources": "node --no-warnings src/sources.mjs",
     "fetch": "node --no-warnings src/fetch.mjs",
     "enrich": "node --no-warnings src/enrich.mjs",
-    "show": "node --no-warnings src/show.mjs"
+    "show": "node --no-warnings src/show.mjs",
+    "preview": "node --no-warnings site/build.mjs --drafts",
+    "import-memos": "node --no-warnings site/import-memos.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.68.0",
